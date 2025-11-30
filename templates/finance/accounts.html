@@ -1,0 +1,79 @@
+{% extends 'finance/base.html' %}
+
+{% block title %}Accounts - MoneyFlow{% endblock %}
+
+{% block content %}
+<div class="page-header d-flex justify-content-between align-items-center flex-wrap gap-3">
+    <div>
+        <h1><i class="bi bi-wallet2 me-2"></i>Accounts</h1>
+        <p class="mb-0">Manage your bank accounts, wallets, and cards</p>
+    </div>
+    <a href="{% url 'account_create' %}" class="btn btn-primary">
+        <i class="bi bi-plus-lg me-2"></i>Add Account
+    </a>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-4">
+        <div class="card stat-card">
+            <div class="card-body">
+                <p class="text-muted mb-1">Total Balance</p>
+                <h2 class="stat-value balance">${{ total_balance|floatformat:2 }}</h2>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    {% if accounts %}
+    {% for account in accounts %}
+    <div class="col-md-6 col-lg-4">
+        <div class="card h-100">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <div class="d-flex align-items-center">
+                        <div class="rounded-circle p-3 me-3" style="background: {{ account.color }}20;">
+                            <i class="bi {{ account.icon }} fs-4" style="color: {{ account.color }};"></i>
+                        </div>
+                        <div>
+                            <h5 class="mb-0">{{ account.name }}</h5>
+                            <small class="text-muted">{{ account.get_account_type_display }}</small>
+                        </div>
+                    </div>
+                    {% if not account.is_active %}
+                    <span class="badge bg-secondary">Inactive</span>
+                    {% endif %}
+                </div>
+                
+                <h3 class="{% if account.balance >= 0 %}text-success{% else %}text-danger{% endif %} mb-3">
+                    ${{ account.balance|floatformat:2 }}
+                </h3>
+                
+                <div class="d-flex gap-2">
+                    <a href="{% url 'account_edit' account.pk %}" class="btn btn-sm btn-outline-primary">
+                        <i class="bi bi-pencil me-1"></i>Edit
+                    </a>
+                    <a href="{% url 'account_delete' account.pk %}" class="btn btn-sm btn-outline-danger">
+                        <i class="bi bi-trash me-1"></i>Delete
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+    {% else %}
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body empty-state">
+                <i class="bi bi-wallet2"></i>
+                <h5>No accounts yet</h5>
+                <p class="text-muted">Add your first account to start tracking</p>
+                <a href="{% url 'account_create' %}" class="btn btn-primary">
+                    <i class="bi bi-plus-lg me-2"></i>Add Account
+                </a>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
