@@ -68,6 +68,7 @@ Using SQLite with the following models:
 
 ## Recent Changes
 - November 30, 2025: Initial implementation of all MVP features
+- November 30, 2025: Fixed account balance tracking with initial_balance field and proper transaction-based recalculation
 
 ## User Preferences
 - Dark theme with neon cyan/purple color scheme
