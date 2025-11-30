@@ -1,0 +1,81 @@
+Personal Finance Management System – Full Project Description
+
+Project Title
+MoneyFlow – Personal Finance Tracker with Budgets, Goals & Insights
+Project Goal
+Build a complete, secure, and beautiful web-based personal finance manager where users can track income/expenses, set budgets, create savings goals, visualize spending habits, and take control of their money — all in one place.
+Target Users
+
+Students, working professionals, freelancers, and anyone who wants to manage personal finances without relying on paid apps like Money Manager, Wallet, or Spendee.
+
+Core Tech Stack (Perfect for Replit)
+
+Backend & Full-stack Framework: Django 5 (Python)
+Database: SQLite (default) 
+Frontend: Django Templates + Bootstrap 5 + Chart.js
+Authentication: Django’s built-in auth system
+
+
+Complete Feature List (Final Version)
+1. User Authentication
+
+Register / Login / Logout
+Password reset via email (works on Replit)
+Each user sees only their own data
+
+2. Beautiful Dashboard
+
+Total Income, Expenses, Balance (current month
+Net worth (if assets added)
+Pie chart: Expense breakdown by category
+Bar chart: Last 6 months Income vs Expense
+Quick stats cards + progress toward monthly budget & savings goals
+
+3. Transactions Management
+
+Add/Edit/Delete Income & Expenses
+Fields: Amount, Category, Account/Wallet, Date, Description, Tags, Receipt photo (optional)
+Support for Split Transactions (advanced)
+Recurring Transactions (salary, rent, subscriptions – auto-added)
+
+4. Multiple Accounts / Wallets
+
+Cash, Bank Accounts, UPI Wallets, Credit Cards
+Track balance per account
+Transfer money between accounts
+
+5. Smart Categories & Tags
+
+Default categories (Food, Transport, Shopping, Bills, Salary, etc.)
+Users can create custom categories & tags
+Color-coded categories
+
+6. Budget Planning
+
+Set monthly budget per category
+Overall monthly budget
+Progress bars + alerts (75%, 90%, 100% warnings)
+Budget carry-over option
+
+7. Savings Goals
+
+Create goals (e.g., “New Phone ₹40,000 by Dec 2025”)
+Track progress with circular progress bar
+Auto-calculate monthly saving needed
+
+8. Powerful Reports & Analytics
+
+Monthly/Yearly reports
+Income vs Expense trend (line chart)
+Top spending categories
+Spending by tags
+Export transactions & reports → CSV / PDF
+
+9. Data Visualization (Bonus Polished Features)
+Neon Cyber Security Dark Theme
+Responsive design (mobile + desktop)
+Search transactions
+Filter by date, category, account, type
+Import transactions via CSV
+Attach receipt images
+Progressive Web App (PWA) – installable on phone
