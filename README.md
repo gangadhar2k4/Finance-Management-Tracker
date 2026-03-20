@@ -1,3 +1,5 @@
+# Finance-Management-Tracker
+
 # MoneyFlow - Personal Finance Tracker
 
 ## Overview
@@ -74,3 +76,4 @@ Using SQLite with the following models:
 - Dark theme with neon cyan/purple color scheme
 - Bootstrap 5 for responsive design
 - Chart.js for data visualizations
+

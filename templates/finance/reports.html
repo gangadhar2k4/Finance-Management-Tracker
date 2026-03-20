@@ -2,20 +2,130 @@
 
 {% block title %}Reports - MoneyFlow{% endblock %}
 
+{% block extra_css %}
+<style>
+    .reports-hero {
+        position: relative;
+        padding: 22px 22px;
+        border-radius: 18px;
+        background:
+            radial-gradient(900px 300px at 15% 20%, rgba(0, 212, 255, 0.18), transparent 55%),
+            radial-gradient(800px 260px at 85% 10%, rgba(168, 85, 247, 0.18), transparent 55%),
+            rgba(18, 18, 26, 0.6);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        box-shadow: 0 12px 50px rgba(0, 0, 0, 0.35);
+        overflow: hidden;
+    }
+
+    .reports-hero::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background:
+            linear-gradient(135deg, rgba(0, 212, 255, 0.08), rgba(168, 85, 247, 0.08));
+        pointer-events: none;
+    }
+
+    .reports-hero .hero-inner {
+        position: relative;
+        z-index: 1;
+        display: flex;
+        gap: 16px;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+    }
+
+    .reports-hero h1 {
+        margin: 0;
+        font-size: 1.55rem;
+        letter-spacing: 0.2px;
+    }
+
+    .reports-hero p {
+        margin: 6px 0 0 0;
+        color: #a9a9bd;
+    }
+
+    .hero-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 12px;
+        border-radius: 999px;
+        background: rgba(0, 212, 255, 0.1);
+        border: 1px solid rgba(0, 212, 255, 0.18);
+        color: #c9f6ff;
+        font-weight: 600;
+        font-size: 0.85rem;
+        white-space: nowrap;
+    }
+
+    .glass-card {
+        background: rgba(18, 18, 26, 0.72);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.35);
+        backdrop-filter: blur(10px);
+    }
+
+    .glass-card .card-header {
+        border-bottom: 1px solid rgba(255, 255, 255, 0.06) !important;
+    }
+
+    .chart-wrap {
+        position: relative;
+        height: 340px;
+    }
+
+    .chart-wrap.compact {
+        height: 280px;
+    }
+
+    .category-row {
+        border-bottom: 1px dashed rgba(255, 255, 255, 0.08) !important;
+    }
+
+    .category-row:last-child {
+        border-bottom: none !important;
+    }
+
+    .category-rank {
+        width: 34px;
+        height: 24px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 10px;
+        font-weight: 700;
+        color: #0a0a0f;
+    }
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="page-header">
-    <h1><i class="bi bi-graph-up me-2"></i>Reports & Analytics</h1>
-    <p>Analyze your financial trends and patterns</p>
+<div class="reports-hero mb-4">
+    <div class="hero-inner">
+        <div>
+            <h1><i class="bi bi-graph-up me-2"></i>Reports & Analytics</h1>
+            <p>Analyze trends, compare performance, and spot patterns faster.</p>
+        </div>
+        <div class="hero-pill">
+            <i class="bi bi-lightning-charge"></i>
+            <span>Last 12 months overview</span>
+        </div>
+    </div>
 </div>
 
 <div class="row g-4 mb-4">
     <div class="col-12">
-        <div class="card">
-            <div class="card-header bg-transparent border-bottom border-secondary">
+        <div class="card glass-card">
+            <div class="card-header bg-transparent">
                 <h5 class="mb-0"><i class="bi bi-graph-up me-2"></i>Income vs Expenses Trend</h5>
             </div>
             <div class="card-body">
-                <canvas id="trendChart" height="300"></canvas>
+                <div class="chart-wrap">
+                    <canvas id="trendChart"></canvas>
+                </div>
             </div>
         </div>
     </div>
@@ -23,28 +133,30 @@
 
 <div class="row g-4">
     <div class="col-lg-6">
-        <div class="card h-100">
-            <div class="card-header bg-transparent border-bottom border-secondary">
+        <div class="card glass-card h-100">
+            <div class="card-header bg-transparent">
                 <h5 class="mb-0"><i class="bi bi-bar-chart me-2"></i>Monthly Savings</h5>
             </div>
             <div class="card-body">
-                <canvas id="savingsChart" height="250"></canvas>
+                <div class="chart-wrap compact">
+                    <canvas id="savingsChart"></canvas>
+                </div>
             </div>
         </div>
     </div>
     
     <div class="col-lg-6">
-        <div class="card h-100">
-            <div class="card-header bg-transparent border-bottom border-secondary">
+        <div class="card glass-card h-100">
+            <div class="card-header bg-transparent">
                 <h5 class="mb-0"><i class="bi bi-trophy me-2"></i>Top Spending Categories (This Year)</h5>
             </div>
             <div class="card-body">
                 {% if top_categories %}
                 <div class="list-group list-group-flush">
                     {% for cat in top_categories %}
-                    <div class="list-group-item bg-transparent border-secondary d-flex justify-content-between align-items-center px-0 py-3">
+                    <div class="list-group-item bg-transparent border-0 d-flex justify-content-between align-items-center px-0 py-3 category-row">
                         <div class="d-flex align-items-center">
-                            <span class="badge me-3" style="background: {{ cat.category__color }}; width: 30px;">{{ forloop.counter }}</span>
+                            <span class="category-rank me-3" style="background: {{ cat.category__color }};">{{ forloop.counter }}</span>
                             <span>{{ cat.category__name|default:"Uncategorized" }}</span>
                         </div>
                         <span class="fw-bold" style="color: {{ cat.category__color }};">${{ cat.total|floatformat:2 }}</span>
@@ -67,8 +179,66 @@
 <script>
 const monthlyData = {{ monthly_data|safe }};
 
+function formatCurrency(value) {
+    const n = Number(value) || 0;
+    return '$' + n.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+
+function commonChartOptions() {
+    return {
+        responsive: true,
+        maintainAspectRatio: false,
+        interaction: { mode: 'index', intersect: false },
+        plugins: {
+            legend: {
+                position: 'top',
+                labels: {
+                    color: '#b7b7c9',
+                    usePointStyle: true,
+                    pointStyle: 'circle',
+                    boxWidth: 8,
+                    boxHeight: 8,
+                    padding: 18,
+                }
+            },
+            tooltip: {
+                backgroundColor: 'rgba(18, 18, 26, 0.92)',
+                borderColor: 'rgba(255, 255, 255, 0.10)',
+                borderWidth: 1,
+                titleColor: '#ffffff',
+                bodyColor: '#d8d8e6',
+                padding: 12,
+                displayColors: true,
+            }
+        },
+        scales: {
+            x: {
+                grid: { color: 'rgba(255,255,255,0.05)' },
+                ticks: { color: '#a0a0b0', maxRotation: 0, autoSkip: true }
+            },
+            y: {
+                grid: { color: 'rgba(255,255,255,0.05)' },
+                ticks: {
+                    color: '#a0a0b0',
+                    callback: function(value) { return formatCurrency(value); }
+                }
+            }
+        },
+        animation: { duration: 900, easing: 'easeOutQuart' },
+    };
+}
+
 const trendCtx = document.getElementById('trendChart');
 if (trendCtx) {
+    const ctx = trendCtx.getContext('2d');
+    const incomeGradient = ctx.createLinearGradient(0, 0, 0, 360);
+    incomeGradient.addColorStop(0, 'rgba(0, 255, 136, 0.32)');
+    incomeGradient.addColorStop(1, 'rgba(0, 255, 136, 0.00)');
+
+    const expenseGradient = ctx.createLinearGradient(0, 0, 0, 360);
+    expenseGradient.addColorStop(0, 'rgba(236, 72, 153, 0.28)');
+    expenseGradient.addColorStop(1, 'rgba(236, 72, 153, 0.00)');
+
     new Chart(trendCtx, {
         type: 'line',
         data: {
@@ -78,34 +248,40 @@ if (trendCtx) {
                     label: 'Income',
                     data: monthlyData.map(d => d.income),
                     borderColor: '#00ff88',
-                    backgroundColor: 'rgba(0, 255, 136, 0.1)',
+                    backgroundColor: incomeGradient,
                     fill: true,
-                    tension: 0.4,
+                    tension: 0.42,
+                    borderWidth: 2,
+                    pointRadius: 0,
+                    pointHoverRadius: 5,
+                    pointHitRadius: 16,
                 },
                 {
                     label: 'Expenses',
                     data: monthlyData.map(d => d.expense),
                     borderColor: '#ec4899',
-                    backgroundColor: 'rgba(236, 72, 153, 0.1)',
+                    backgroundColor: expenseGradient,
                     fill: true,
-                    tension: 0.4,
+                    tension: 0.42,
+                    borderWidth: 2,
+                    pointRadius: 0,
+                    pointHoverRadius: 5,
+                    pointHitRadius: 16,
                 }
             ]
         },
         options: {
-            responsive: true,
-            maintainAspectRatio: false,
+            ...commonChartOptions(),
             plugins: {
-                legend: { labels: { color: '#a0a0b0' } }
-            },
-            scales: {
-                x: {
-                    grid: { color: 'rgba(255,255,255,0.05)' },
-                    ticks: { color: '#a0a0b0' }
-                },
-                y: {
-                    grid: { color: 'rgba(255,255,255,0.05)' },
-                    ticks: { color: '#a0a0b0' }
+                ...commonChartOptions().plugins,
+                tooltip: {
+                    ...commonChartOptions().plugins.tooltip,
+                    callbacks: {
+                        label: function(context) {
+                            const label = context.dataset.label || '';
+                            return label + ': ' + formatCurrency(context.parsed.y);
+                        }
+                    }
                 }
             }
         }
@@ -114,6 +290,15 @@ if (trendCtx) {
 
 const savingsCtx = document.getElementById('savingsChart');
 if (savingsCtx) {
+    const ctx = savingsCtx.getContext('2d');
+    const positiveGradient = ctx.createLinearGradient(0, 0, 0, 300);
+    positiveGradient.addColorStop(0, 'rgba(0, 212, 255, 0.90)');
+    positiveGradient.addColorStop(1, 'rgba(168, 85, 247, 0.55)');
+
+    const negativeGradient = ctx.createLinearGradient(0, 0, 0, 300);
+    negativeGradient.addColorStop(0, 'rgba(236, 72, 153, 0.95)');
+    negativeGradient.addColorStop(1, 'rgba(255, 51, 102, 0.60)');
+
     new Chart(savingsCtx, {
         type: 'bar',
         data: {
@@ -121,26 +306,26 @@ if (savingsCtx) {
             datasets: [{
                 label: 'Savings',
                 data: monthlyData.map(d => d.savings),
-                backgroundColor: monthlyData.map(d => d.savings >= 0 ? 'rgba(0, 212, 255, 0.7)' : 'rgba(236, 72, 153, 0.7)'),
-                borderColor: monthlyData.map(d => d.savings >= 0 ? '#00d4ff' : '#ec4899'),
+                backgroundColor: monthlyData.map(d => d.savings >= 0 ? positiveGradient : negativeGradient),
+                borderColor: monthlyData.map(d => d.savings >= 0 ? 'rgba(0, 212, 255, 1)' : 'rgba(236, 72, 153, 1)'),
                 borderWidth: 1,
-                borderRadius: 6,
+                borderRadius: 10,
+                borderSkipped: false,
+                maxBarThickness: 26,
             }]
         },
         options: {
-            responsive: true,
-            maintainAspectRatio: false,
+            ...commonChartOptions(),
             plugins: {
-                legend: { labels: { color: '#a0a0b0' } }
-            },
-            scales: {
-                x: {
-                    grid: { color: 'rgba(255,255,255,0.05)' },
-                    ticks: { color: '#a0a0b0' }
-                },
-                y: {
-                    grid: { color: 'rgba(255,255,255,0.05)' },
-                    ticks: { color: '#a0a0b0' }
+                ...commonChartOptions().plugins,
+                legend: { display: false },
+                tooltip: {
+                    ...commonChartOptions().plugins.tooltip,
+                    callbacks: {
+                        label: function(context) {
+                            return 'Savings: ' + formatCurrency(context.parsed.y);
+                        }
+                    }
                 }
             }
         }

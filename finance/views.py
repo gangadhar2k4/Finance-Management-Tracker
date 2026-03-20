@@ -9,12 +9,22 @@ from django.utils import timezone
 from datetime import datetime, timedelta
 from decimal import Decimal
 import json
+import os
+
+from dotenv import load_dotenv
+
+load_dotenv()
 
 from .models import UserProfile, Account, Category, Transaction, Budget, SavingsGoal
 from .forms import (
     CustomUserCreationForm, CustomAuthenticationForm, AccountForm, 
     CategoryForm, TransactionForm, BudgetForm, SavingsGoalForm, TransactionFilterForm
 )
+
+try:
+    from groq import Groq
+except Exception:
+    Groq = None
 
 
 def register(request):
@@ -53,6 +63,84 @@ def logout_view(request):
     logout(request)
     messages.info(request, 'You have been logged out.')
     return redirect('login')
+
+
+@login_required
+def api_chat(request):
+    if request.method != 'POST':
+        return JsonResponse({'error': 'Method not allowed. Use POST.'}, status=405)
+
+    if Groq is None:
+        return JsonResponse({'error': 'Groq client not installed. Add the groq package.'}, status=500)
+
+    api_key = os.environ.get('GROQ_API_KEY')
+    if not api_key:
+        return JsonResponse({'error': 'Missing GROQ_API_KEY environment variable.'}, status=500)
+
+    try:
+        payload = json.loads(request.body.decode('utf-8') or '{}')
+    except Exception:
+        return JsonResponse({'error': 'Invalid JSON body.'}, status=400)
+
+    model = payload.get('model') or 'llama-3.1-8b-instant'
+    temperature = payload.get('temperature')
+    max_tokens = payload.get('max_tokens')
+
+    messages_payload = payload.get('messages')
+    question = payload.get('question')
+
+    if messages_payload is None:
+        if not question or not isinstance(question, str):
+            return JsonResponse({'error': 'Provide either messages (array) or question (string).'}, status=400)
+        messages_payload = [
+            {
+                'role': 'system',
+                'content': 'You are a helpful personal finance assistant for the MoneyFlow app. Answer clearly and concisely.'
+            },
+            {'role': 'user', 'content': question},
+        ]
+
+    if not isinstance(messages_payload, list) or len(messages_payload) == 0:
+        return JsonResponse({'error': 'messages must be a non-empty array.'}, status=400)
+
+    client = Groq(api_key=api_key)
+
+    create_kwargs = {
+        'model': model,
+        'messages': messages_payload,
+    }
+    if temperature is not None:
+        create_kwargs['temperature'] = temperature
+    if max_tokens is not None:
+        create_kwargs['max_tokens'] = max_tokens
+
+    try:
+        completion = client.chat.completions.create(**create_kwargs)
+    except Exception as e:
+        return JsonResponse({'error': 'Groq request failed.', 'details': str(e)}, status=502)
+
+    reply = None
+    try:
+        reply = completion.choices[0].message.content
+    except Exception:
+        reply = None
+
+    if not reply:
+        return JsonResponse({'error': 'No reply returned by model.'}, status=502)
+
+    usage = getattr(completion, 'usage', None)
+    usage_dict = None
+    if usage is not None:
+        try:
+            usage_dict = {
+                'prompt_tokens': getattr(usage, 'prompt_tokens', None),
+                'completion_tokens': getattr(usage, 'completion_tokens', None),
+                'total_tokens': getattr(usage, 'total_tokens', None),
+            }
+        except Exception:
+            usage_dict = None
+
+    return JsonResponse({'reply': reply, 'model': model, 'usage': usage_dict})
 
 
 @login_required

@@ -8,8 +8,11 @@
         <h1><i class="bi bi-pie-chart me-2"></i>Budgets</h1>
         <p class="mb-0">{{ current_month }} Budget Overview</p>
     </div>
-    <a href="{% url 'budget_create' %}" class="btn btn-primary">
-        <i class="bi bi-plus-lg me-2"></i>Add Budget
+    <a href="{% url 'budget_create' %}" class="btn btn-premium-cta">
+        <span class="cta-content">
+            <span class="cta-icon" aria-hidden="true"><i class="bi bi-plus"></i></span>
+            <span>Add Budget</span>
+        </span>
     </a>
 </div>
 
@@ -25,10 +28,14 @@
                             {% if item.budget.is_overall %}
                             <i class="bi bi-speedometer2 me-2" style="color: var(--neon-cyan);"></i>Overall Budget
                             {% else %}
-                            <span class="category-badge me-2" style="background: {{ item.budget.category.color }}20; color: {{ item.budget.category.color }};">
+                            {% if item.budget.category %}
+                            <span class="category-badge me-2" style="--category-color: {{ item.budget.category.color }}; background-color: var(--category-color)20; color: var(--category-color);">
                                 <i class="bi {{ item.budget.category.icon }}"></i>
                             </span>
                             {{ item.budget.category.name }}
+                            {% else %}
+                            <i class="bi bi-tag me-2"></i>Uncategorized Budget
+                            {% endif %}
                             {% endif %}
                         </h5>
                     </div>
@@ -50,7 +57,7 @@
                     </div>
                     <div class="progress" style="height: 10px;">
                         <div class="progress-bar {% if item.percentage >= 90 %}danger{% elif item.percentage >= 75 %}warning{% endif %}" 
-                             style="width: {{ item.percentage }}%"></div>
+                             style="--progress-width: {{ item.percentage }}; width: calc(var(--progress-width) * 1%);"></div>
                     </div>
                 </div>
                 
@@ -79,8 +86,11 @@
                 <i class="bi bi-pie-chart"></i>
                 <h5>No budgets set for this month</h5>
                 <p class="text-muted">Create budgets to track your spending limits</p>
-                <a href="{% url 'budget_create' %}" class="btn btn-primary">
-                    <i class="bi bi-plus-lg me-2"></i>Create Budget
+                <a href="{% url 'budget_create' %}" class="btn btn-premium-cta">
+                    <span class="cta-content">
+                        <span class="cta-icon" aria-hidden="true"><i class="bi bi-plus"></i></span>
+                        <span>Create Budget</span>
+                    </span>
                 </a>
             </div>
         </div>

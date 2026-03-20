@@ -130,7 +130,7 @@ class BudgetForm(forms.ModelForm):
         self.fields['category'].queryset = Category.objects.filter(user=user, category_type='expense')
         self.fields['category'].required = False
         self.fields['month'].widget = forms.Select(
-            choices=[(i, name) for i, name in enumerate(['', 'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'], 0) if i > 0],
+            choices=[(i, name) for i, name in enumerate(['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'], 1)],
             attrs={'class': 'form-select bg-dark text-light border-secondary'}
         )
 

@@ -1,0 +1,661 @@
+<style>
+    :root {
+        --assistant-cyan: rgba(0, 212, 255, 1);
+        --assistant-cyan-20: rgba(0, 212, 255, 0.20);
+        --assistant-cyan-12: rgba(0, 212, 255, 0.12);
+        --assistant-purple-16: rgba(168, 85, 247, 0.16);
+        --assistant-purple-10: rgba(168, 85, 247, 0.10);
+        --assistant-bg: rgba(18, 18, 26, 0.72);
+        --assistant-border: rgba(255, 255, 255, 0.06);
+    }
+
+    .assistant-widget {
+        position: fixed;
+        right: 18px;
+        bottom: 18px;
+        z-index: 1060;
+    }
+
+    .assistant-toggle {
+        width: 66px;
+        height: 66px;
+        border-radius: 999px;
+        border: 0;
+        padding: 0;
+        background: transparent;
+        color: #eaffff;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        user-select: none;
+        -webkit-tap-highlight-color: transparent;
+        filter: drop-shadow(0 18px 40px rgba(0, 0, 0, 0.55));
+        transition: transform 220ms cubic-bezier(0.2, 0.9, 0.2, 1);
+        animation: assistantFloat 5.6s ease-in-out infinite;
+    }
+
+    .assistant-toggle {
+        position: relative;
+        overflow: visible;
+    }
+
+    .assistant-toggle-ring {
+        position: absolute;
+        inset: 0;
+        border-radius: 999px;
+        background:
+            conic-gradient(
+                from 210deg,
+                rgba(0, 212, 255, 0.00),
+                rgba(0, 212, 255, 0.55),
+                rgba(0, 212, 255, 0.05),
+                rgba(168, 85, 247, 0.30),
+                rgba(0, 212, 255, 0.65),
+                rgba(0, 212, 255, 0.00)
+            );
+        filter: blur(0.2px);
+        opacity: 0.85;
+        transform: rotate(0deg);
+        transition: opacity 220ms ease;
+    }
+
+    .assistant-toggle-ring::before {
+        content: '';
+        position: absolute;
+        inset: 2px;
+        border-radius: 999px;
+        background: rgba(0, 0, 0, 0.0);
+        box-shadow:
+            0 0 0 1px rgba(0, 212, 255, 0.22),
+            0 0 18px rgba(0, 212, 255, 0.18),
+            0 0 34px rgba(0, 212, 255, 0.12);
+        opacity: 0.95;
+        transition: box-shadow 240ms ease;
+    }
+
+    .assistant-toggle-halo {
+        content: '';
+        position: absolute;
+        inset: -18px;
+        border-radius: 999px;
+        background: radial-gradient(closest-side, rgba(0, 212, 255, 0.26), transparent 72%);
+        filter: blur(12px);
+        opacity: 0.85;
+        pointer-events: none;
+        animation: assistantPulse 2.8s ease-in-out infinite;
+        transition: opacity 220ms ease, background 220ms ease;
+    }
+
+    .assistant-toggle-core {
+        position: relative;
+        z-index: 2;
+        width: 52px;
+        height: 52px;
+        border-radius: 999px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background:
+            radial-gradient(28px 28px at 32% 30%, rgba(255, 255, 255, 0.20), transparent 60%),
+            radial-gradient(40px 40px at 70% 70%, rgba(0, 212, 255, 0.18), transparent 62%),
+            linear-gradient(145deg, rgba(0, 120, 255, 0.30), rgba(0, 212, 255, 0.14));
+        border: 1px solid rgba(0, 212, 255, 0.24);
+        box-shadow:
+            inset 0 0 0 1px rgba(255, 255, 255, 0.06),
+            inset 0 -10px 20px rgba(0, 0, 0, 0.22),
+            0 10px 30px rgba(0, 0, 0, 0.35);
+        backdrop-filter: blur(10px);
+    }
+
+    .assistant-toggle-core::after {
+        content: '';
+        position: absolute;
+        inset: 7px;
+        border-radius: 999px;
+        background: radial-gradient(closest-side, rgba(0, 212, 255, 0.20), transparent 70%);
+        filter: blur(2px);
+        opacity: 0.8;
+        pointer-events: none;
+    }
+
+    .assistant-toggle i {
+        position: relative;
+        z-index: 3;
+        transform: translateY(0.5px);
+        text-shadow:
+            0 0 18px rgba(0, 212, 255, 0.40),
+            0 0 30px rgba(0, 212, 255, 0.22);
+        animation: assistantShimmer 4.8s ease-in-out infinite;
+    }
+
+    .assistant-toggle-burst {
+        position: absolute;
+        inset: -6px;
+        border-radius: 999px;
+        pointer-events: none;
+        opacity: 0;
+        transform: scale(0.85);
+        background: radial-gradient(closest-side, rgba(0, 212, 255, 0.28), transparent 70%);
+        filter: blur(4px);
+    }
+
+    .assistant-toggle.is-burst .assistant-toggle-burst {
+        animation: assistantBurst 520ms cubic-bezier(0.2, 0.9, 0.2, 1) 1;
+    }
+
+    .assistant-toggle:hover {
+        transform: translateY(-2px) scale(1.06);
+    }
+
+    .assistant-toggle:hover .assistant-toggle-halo {
+        opacity: 1;
+    }
+
+    .assistant-toggle:hover .assistant-toggle-ring::before {
+        box-shadow:
+            0 0 0 1px rgba(0, 212, 255, 0.30),
+            0 0 22px rgba(0, 212, 255, 0.24),
+            0 0 46px rgba(0, 212, 255, 0.16);
+    }
+
+    .assistant-toggle:active {
+        transform: translateY(0px) scale(1.02);
+    }
+
+    .assistant-toggle:focus-visible {
+        outline: none;
+        filter:
+            drop-shadow(0 18px 40px rgba(0, 0, 0, 0.55))
+            drop-shadow(0 0 18px rgba(0, 212, 255, 0.22));
+    }
+
+    .assistant-widget.is-open .assistant-toggle {
+        animation: assistantFloat 5.6s ease-in-out infinite;
+    }
+
+    .assistant-widget.is-open .assistant-toggle-ring {
+        opacity: 0.95;
+        animation: assistantRingRotate 2.6s linear infinite;
+    }
+
+    .assistant-widget.is-open .assistant-toggle-halo {
+        background: radial-gradient(closest-side, rgba(0, 212, 255, 0.30), transparent 72%);
+        opacity: 0.95;
+    }
+
+    @keyframes assistantPulse {
+        0%, 100% { transform: scale(0.96); opacity: 0.75; }
+        50% { transform: scale(1.05); opacity: 1; }
+    }
+
+    @keyframes assistantFloat {
+        0%, 100% { transform: translateY(0px); }
+        50% { transform: translateY(-3px); }
+    }
+
+    @keyframes assistantRingRotate {
+        to { transform: rotate(360deg); }
+    }
+
+    @keyframes assistantShimmer {
+        0%, 100% { filter: brightness(1); }
+        50% { filter: brightness(1.12); }
+    }
+
+    @keyframes assistantBurst {
+        0% { opacity: 0; transform: scale(0.82); }
+        40% { opacity: 1; transform: scale(1.06); }
+        100% { opacity: 0; transform: scale(1.22); }
+    }
+
+    .assistant-panel {
+        position: absolute;
+        right: 0;
+        bottom: 72px;
+        width: 380px;
+        height: 520px;
+        border-radius: 18px;
+        background: var(--assistant-bg);
+        border: 1px solid var(--assistant-border);
+        box-shadow: 0 18px 70px rgba(0, 0, 0, 0.65);
+        backdrop-filter: blur(12px);
+        overflow: hidden;
+
+        opacity: 0;
+        transform: translateY(10px) scale(0.98);
+        pointer-events: none;
+        transition: opacity 220ms ease, transform 220ms ease;
+        display: grid;
+        grid-template-rows: auto 1fr auto;
+    }
+
+    .assistant-widget.is-open .assistant-panel {
+        opacity: 1;
+        transform: translateY(0px) scale(1);
+        pointer-events: auto;
+    }
+
+    .assistant-header {
+        position: relative;
+        padding: 12px 12px;
+        background:
+            radial-gradient(600px 220px at 15% 20%, rgba(0, 212, 255, 0.16), transparent 60%),
+            radial-gradient(520px 220px at 85% 10%, rgba(168, 85, 247, 0.16), transparent 60%),
+            rgba(18, 18, 26, 0.86);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .assistant-header .title {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        color: #eaffff;
+        font-weight: 700;
+        letter-spacing: 0.2px;
+    }
+
+    .assistant-header .subtitle {
+        margin: 2px 0 0 0;
+        color: #a9a9bd;
+        font-size: 0.85rem;
+    }
+
+    .assistant-header .actions {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+    }
+
+    .assistant-header .header-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .assistant-close {
+        width: 34px;
+        height: 34px;
+        border-radius: 10px;
+        border: 1px solid rgba(255, 255, 255, 0.10);
+        background: rgba(255, 255, 255, 0.04);
+        color: #eaeaf5;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: background 180ms ease, transform 180ms ease;
+    }
+
+    .assistant-close:hover {
+        background: rgba(255, 255, 255, 0.07);
+        transform: translateY(-1px);
+    }
+
+    .assistant-messages {
+        overflow: auto;
+        padding: 12px;
+    }
+
+    .assistant-msg {
+        display: flex;
+        margin-bottom: 12px;
+    }
+
+    .assistant-msg.user {
+        justify-content: flex-end;
+    }
+
+    .assistant-bubble {
+        max-width: min(680px, 92%);
+        padding: 10px 12px;
+        border-radius: 14px;
+        border: 1px solid rgba(255,255,255,0.06);
+        line-height: 1.35;
+        white-space: pre-wrap;
+        word-break: break-word;
+    }
+
+    .assistant-bubble.user {
+        background: var(--assistant-cyan-12);
+        border-color: rgba(0, 212, 255, 0.16);
+        color: #eaffff;
+    }
+
+    .assistant-bubble.assistant {
+        background: rgba(168, 85, 247, 0.08);
+        border-color: var(--assistant-purple-16);
+        color: #f0eaff;
+    }
+
+    .assistant-composer {
+        border-top: 1px solid rgba(255, 255, 255, 0.06);
+        padding: 12px;
+        background: rgba(18, 18, 26, 0.86);
+    }
+
+    .assistant-meta-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 8px;
+    }
+
+    .assistant-tiny {
+        font-size: 0.85rem;
+        color: #a0a0b0;
+    }
+
+    .assistant-form {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 10px;
+        align-items: end;
+    }
+
+    .assistant-form textarea {
+        resize: none;
+        min-height: 44px;
+        max-height: 140px;
+        background: rgba(255, 255, 255, 0.03);
+        border-color: rgba(255, 255, 255, 0.10);
+        color: #f3f3ff;
+    }
+
+    .assistant-form textarea:focus {
+        box-shadow: 0 0 0 0.25rem rgba(0, 212, 255, 0.15);
+        border-color: rgba(0, 212, 255, 0.28);
+    }
+
+    .assistant-form .btn-primary {
+        background: linear-gradient(135deg, rgba(0, 212, 255, 0.85), rgba(0, 140, 255, 0.85));
+        border-color: rgba(0, 212, 255, 0.30);
+        box-shadow: 0 10px 28px rgba(0, 212, 255, 0.16);
+    }
+
+    .assistant-form .btn-primary:hover {
+        background: linear-gradient(135deg, rgba(0, 212, 255, 0.95), rgba(0, 140, 255, 0.92));
+        border-color: rgba(0, 212, 255, 0.40);
+    }
+
+    @media (max-width: 576px) {
+        .assistant-widget {
+            right: 14px;
+            bottom: 14px;
+        }
+
+        .assistant-toggle {
+            width: 62px;
+            height: 62px;
+        }
+
+        .assistant-panel {
+            position: fixed;
+            right: 10px;
+            left: 10px;
+            bottom: 82px;
+            width: auto;
+            height: min(78vh, 640px);
+            border-radius: 18px;
+        }
+    }
+</style>
+
+<div class="assistant-widget" id="assistantWidget" aria-live="polite">
+    <div class="assistant-panel" id="assistantPanel" role="dialog" aria-label="MoneyFlow Assistant">
+        <div class="assistant-header">
+            <div class="header-row">
+                <div>
+                    <div class="title"><i class="bi bi-stars"></i><span>MoneyFlow Assistant</span></div>
+                    <p class="subtitle">Ask about budgets, spending, and goals</p>
+                </div>
+                <div class="actions">
+                    <button type="button" class="assistant-close" id="assistantCloseBtn" aria-label="Close assistant">
+                        <i class="bi bi-x-lg"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="assistant-messages" id="assistantMessages"></div>
+
+        <div class="assistant-composer">
+            <div class="assistant-meta-row">
+                <div class="assistant-tiny" id="assistantStatusText">Ready</div>
+                <div>
+                    <button type="button" class="btn btn-sm btn-outline-secondary" id="assistantClearChatBtn">
+                        <i class="bi bi-trash me-1"></i>Clear
+                    </button>
+                </div>
+            </div>
+
+            <form id="assistantChatForm" class="assistant-form">
+                {% csrf_token %}
+                <textarea class="form-control" id="assistantChatInput" placeholder="Ask something…" autocomplete="off"></textarea>
+                <button type="submit" class="btn btn-primary" id="assistantSendBtn">
+                    <i class="bi bi-send me-2"></i>Send
+                </button>
+            </form>
+            <div class="assistant-tiny mt-2">Tip: Enter to send, Shift+Enter for a new line.</div>
+        </div>
+    </div>
+
+    <button type="button" class="assistant-toggle" id="assistantToggleBtn" aria-label="Open assistant">
+        <span class="assistant-toggle-halo" aria-hidden="true"></span>
+        <span class="assistant-toggle-ring" aria-hidden="true"></span>
+        <span class="assistant-toggle-burst" aria-hidden="true"></span>
+        <span class="assistant-toggle-core" aria-hidden="true">
+            <i class="bi bi-stars fs-4"></i>
+        </span>
+    </button>
+</div>
+
+<script>
+(function () {
+    const widget = document.getElementById('assistantWidget');
+    const toggleBtn = document.getElementById('assistantToggleBtn');
+    const closeBtn = document.getElementById('assistantCloseBtn');
+    const panel = document.getElementById('assistantPanel');
+
+    const messagesEl = document.getElementById('assistantMessages');
+    const form = document.getElementById('assistantChatForm');
+    const input = document.getElementById('assistantChatInput');
+    const sendBtn = document.getElementById('assistantSendBtn');
+    const statusText = document.getElementById('assistantStatusText');
+    const clearBtn = document.getElementById('assistantClearChatBtn');
+
+    const userId = '{% if user.is_authenticated %}{{ request.user.id }}{% else %}anon{% endif %}';
+    const STORAGE_KEY = `moneyflow_chat_history_${userId}`;
+
+    function getCookie(name) {
+        const value = `; ${document.cookie}`;
+        const parts = value.split(`; ${name}=`);
+        if (parts.length === 2) return parts.pop().split(';').shift();
+        return null;
+    }
+
+    function loadHistory() {
+        try {
+            const raw = localStorage.getItem(STORAGE_KEY);
+            const parsed = raw ? JSON.parse(raw) : [];
+            return Array.isArray(parsed) ? parsed : [];
+        } catch (e) {
+            return [];
+        }
+    }
+
+    function saveHistory(history) {
+        try {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(history));
+        } catch (e) {
+        }
+    }
+
+    function render(history) {
+        messagesEl.innerHTML = '';
+        if (!history.length) {
+            const empty = document.createElement('div');
+            empty.className = 'text-center text-muted py-5';
+            empty.innerHTML = '<i class="bi bi-chat-left-text fs-1 opacity-50"></i><p class="mt-2 mb-0">Start a conversation</p>';
+            messagesEl.appendChild(empty);
+            return;
+        }
+
+        for (const msg of history) {
+            const row = document.createElement('div');
+            row.className = `assistant-msg ${msg.role === 'user' ? 'user' : 'assistant'}`;
+
+            const bubble = document.createElement('div');
+            bubble.className = `assistant-bubble ${msg.role === 'user' ? 'user' : 'assistant'}`;
+            bubble.textContent = msg.content || '';
+
+            row.appendChild(bubble);
+            messagesEl.appendChild(row);
+        }
+        messagesEl.scrollTop = messagesEl.scrollHeight;
+    }
+
+    function setBusy(isBusy, text) {
+        sendBtn.disabled = isBusy;
+        input.disabled = isBusy;
+        statusText.textContent = text || (isBusy ? 'Thinking…' : 'Ready');
+    }
+
+    async function sendMessage(question) {
+        const csrfToken = getCookie('csrftoken');
+        const payload = {
+            question: question,
+        };
+
+        const res = await fetch('{% url "api_chat" %}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrfToken || '',
+            },
+            body: JSON.stringify(payload),
+        });
+
+        let data = null;
+        try {
+            data = await res.json();
+        } catch (e) {
+            data = null;
+        }
+
+        if (!res.ok) {
+            const detail = data && (data.error || data.details) ? (data.error || data.details) : `Request failed (${res.status})`;
+            throw new Error(detail);
+        }
+
+        if (!data || typeof data.reply !== 'string') {
+            throw new Error('Invalid response from server');
+        }
+
+        return data.reply;
+    }
+
+    let history = loadHistory();
+    render(history);
+
+    function openWidget() {
+        widget.classList.add('is-open');
+        try {
+            localStorage.setItem('moneyflow_assistant_open', '1');
+        } catch (e) {
+        }
+        setTimeout(() => {
+            input && input.focus();
+        }, 250);
+    }
+
+    function closeWidget() {
+        widget.classList.remove('is-open');
+        try {
+            localStorage.setItem('moneyflow_assistant_open', '0');
+        } catch (e) {
+        }
+    }
+
+    function toggleWidget() {
+        if (widget.classList.contains('is-open')) {
+            closeWidget();
+        } else {
+            openWidget();
+        }
+    }
+
+    toggleBtn.addEventListener('click', function () {
+        toggleBtn.classList.remove('is-burst');
+        void toggleBtn.offsetWidth;
+        toggleBtn.classList.add('is-burst');
+        setTimeout(() => {
+            toggleBtn.classList.remove('is-burst');
+        }, 560);
+        toggleWidget();
+    });
+    closeBtn.addEventListener('click', closeWidget);
+
+    document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape' && widget.classList.contains('is-open')) {
+            closeWidget();
+        }
+    });
+
+    document.addEventListener('click', function (e) {
+        if (!widget.classList.contains('is-open')) return;
+        if (panel.contains(e.target) || toggleBtn.contains(e.target)) return;
+        closeWidget();
+    });
+
+    clearBtn.addEventListener('click', function () {
+        history = [];
+        saveHistory(history);
+        render(history);
+    });
+
+    input.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            form.requestSubmit();
+        }
+    });
+
+    form.addEventListener('submit', async function (e) {
+        e.preventDefault();
+        const text = (input.value || '').trim();
+        if (!text) return;
+
+        history.push({ role: 'user', content: text });
+        saveHistory(history);
+        render(history);
+
+        input.value = '';
+        setBusy(true, 'Thinking…');
+
+        try {
+            const reply = await sendMessage(text);
+            history.push({ role: 'assistant', content: reply });
+            saveHistory(history);
+            render(history);
+            setBusy(false, 'Ready');
+        } catch (err) {
+            history.push({ role: 'assistant', content: `Error: ${err.message || 'Unable to get response'}` });
+            saveHistory(history);
+            render(history);
+            setBusy(false, 'Error');
+        }
+    });
+
+    let shouldOpen = false;
+    try {
+        shouldOpen = localStorage.getItem('moneyflow_assistant_open') === '1';
+    } catch (e) {
+    }
+    if (shouldOpen) {
+        openWidget();
+    }
+})();
+</script>

@@ -61,11 +61,20 @@
 
 {% block extra_js %}
 <script>
-document.getElementById('{{ form.is_overall.id_for_label }}').addEventListener('change', function() {
-    document.getElementById('category-field').style.display = this.checked ? 'none' : 'block';
+document.addEventListener('DOMContentLoaded', function() {
+    const isOverallCheckbox = document.getElementById('{{ form.is_overall.id_for_label }}');
+    const categoryField = document.getElementById('category-field');
+    
+    if (isOverallCheckbox && categoryField) {
+        isOverallCheckbox.addEventListener('change', function() {
+            categoryField.style.display = this.checked ? 'none' : 'block';
+        });
+        
+        // Set initial state
+        if (isOverallCheckbox.checked) {
+            categoryField.style.display = 'none';
+        }
+    }
 });
-if (document.getElementById('{{ form.is_overall.id_for_label }}').checked) {
-    document.getElementById('category-field').style.display = 'none';
-}
 </script>
 {% endblock %}
